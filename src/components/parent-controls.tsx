@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useTracingStore } from "@/store/tracing-store";
-import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
   Select,
@@ -20,20 +19,19 @@ import {
 } from "@/types";
 
 const STROKE_COLORS = [
+  { name: "Coral", value: "#FF6B6B" },
   { name: "Blue", value: "#3b82f6" },
-  { name: "Red", value: "#ef4444" },
-  { name: "Green", value: "#22c55e" },
-  { name: "Purple", value: "#a855f7" },
-  { name: "Orange", value: "#f97316" },
-  { name: "Pink", value: "#ec4899" },
-  { name: "Black", value: "#1f2937" },
+  { name: "Teal", value: "#4ECDC4" },
+  { name: "Purple", value: "#A78BFA" },
+  { name: "Orange", value: "#FB923C" },
+  { name: "Pink", value: "#F472B6" },
+  { name: "Navy", value: "#1a1a2e" },
 ];
 
 export function ParentControls() {
   const [isOpen, setIsOpen] = useState(false);
   const settings = useTracingStore((s) => s.settings);
   const updateSettings = useTracingStore((s) => s.updateSettings);
-  const clearCurrentStrokes = useTracingStore((s) => s.clearCurrentStrokes);
   const setCurrentChar = useTracingStore((s) => s.setCurrentChar);
   const currentChar = useTracingStore((s) => s.currentChar);
   const progress = useTracingStore((s) => s.progress);
@@ -51,161 +49,191 @@ export function ParentControls() {
         ? LOWERCASE
         : NUMBERS;
 
+  const handleLetterSelect = useCallback(
+    (char: string) => {
+      setCurrentChar(char);
+      setIsOpen(false);
+    },
+    [setCurrentChar]
+  );
+
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <Button
-        variant="ghost"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-amber-700 hover:text-amber-900 hover:bg-amber-100"
+    <>
+      {/* Gear trigger — fixed bottom-right */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="hermes-fab"
+        aria-label="Settings"
       >
-        {isOpen ? "Hide Controls ▲" : "Parent Controls ▼"}
-      </Button>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
 
+      {/* Bottom sheet */}
       {isOpen && (
-        <div className="mt-2 p-4 bg-white rounded-xl border border-amber-200 shadow-md space-y-5">
-          {/* Font picker */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">Font</label>
-            <Select
-              value={settings.fontFamily}
-              onValueChange={(v) => updateSettings({ fontFamily: v })}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {AVAILABLE_FONTS.map((font) => (
-                  <SelectItem key={font.value} value={font.value}>
-                    {font.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <>
+          {/* Scrim */}
+          <div
+            className="hermes-bottom-sheet-scrim"
+            onClick={() => setIsOpen(false)}
+          />
 
-          {/* Font size */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Letter Size: {settings.fontSize}px
-            </label>
-            <Slider
-              value={[settings.fontSize]}
-              onValueChange={([v]) => updateSettings({ fontSize: v })}
-              min={100}
-              max={400}
-              step={10}
-            />
-          </div>
+          {/* Sheet */}
+          <div className="hermes-bottom-sheet">
+            {/* Drag handle */}
+            <div className="hermes-bottom-sheet-handle" />
 
-          {/* Font weight */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Font Weight: {settings.fontWeight}
-            </label>
-            <Slider
-              value={[settings.fontWeight]}
-              onValueChange={([v]) => updateSettings({ fontWeight: v })}
-              min={100}
-              max={900}
-              step={100}
-            />
-          </div>
-
-          {/* Stroke size */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Stroke Size: {settings.strokeSize}
-            </label>
-            <Slider
-              value={[settings.strokeSize]}
-              onValueChange={([v]) => updateSettings({ strokeSize: v })}
-              min={8}
-              max={40}
-              step={2}
-            />
-          </div>
-
-          {/* Stroke color */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Stroke Color
-            </label>
-            <div className="flex gap-2 flex-wrap">
-              {STROKE_COLORS.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => updateSettings({ strokeColor: color.value })}
-                  className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                    settings.strokeColor === color.value
-                      ? "border-gray-800 scale-125"
-                      : "border-gray-300"
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Category tabs */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Jump to Letter
-            </label>
-            <div className="flex gap-1 mb-2">
-              {(
-                [
-                  ["uppercase", "A-Z"],
-                  ["lowercase", "a-z"],
-                  ["numbers", "0-9"],
-                ] as const
-              ).map(([cat, label]) => (
-                <Button
-                  key={cat}
-                  variant={activeCategory === cat ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActiveCategory(cat)}
-                  className="flex-1"
+            <div className="p-5 space-y-5">
+              {/* Font picker */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  Font
+                </label>
+                <Select
+                  value={settings.fontFamily}
+                  onValueChange={(v) => updateSettings({ fontFamily: v })}
                 >
-                  {label}
-                </Button>
-              ))}
-            </div>
-            <div className="flex gap-1 flex-wrap">
-              {categoryChars.map((char) => {
-                const isCompleted = progress[char]?.completed;
-                const isCurrent = char === currentChar;
-                return (
-                  <button
-                    key={char}
-                    onClick={() => setCurrentChar(char)}
-                    className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
-                      isCurrent
-                        ? "bg-amber-500 text-white shadow-md scale-110"
-                        : isCompleted
-                          ? "bg-green-100 text-green-700 border border-green-300"
-                          : "bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200"
-                    }`}
-                  >
-                    {char}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+                  <SelectTrigger className="w-full rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AVAILABLE_FONTS.map((font) => (
+                      <SelectItem key={font.value} value={font.value}>
+                        {font.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-2 border-t border-gray-200">
-            <Button
-              variant="outline"
-              onClick={clearCurrentStrokes}
-              className="flex-1"
-            >
-              Clear Drawing
-            </Button>
+              {/* Font size */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  Size: {settings.fontSize}px
+                </label>
+                <Slider
+                  value={[settings.fontSize]}
+                  onValueChange={([v]) => updateSettings({ fontSize: v })}
+                  min={100}
+                  max={400}
+                  step={10}
+                />
+              </div>
+
+              {/* Font weight */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  Weight: {settings.fontWeight}
+                </label>
+                <Slider
+                  value={[settings.fontWeight]}
+                  onValueChange={([v]) => updateSettings({ fontWeight: v })}
+                  min={100}
+                  max={900}
+                  step={100}
+                />
+              </div>
+
+              {/* Stroke size */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  Brush: {settings.strokeSize}
+                </label>
+                <Slider
+                  value={[settings.strokeSize]}
+                  onValueChange={([v]) => updateSettings({ strokeSize: v })}
+                  min={8}
+                  max={40}
+                  step={2}
+                />
+              </div>
+
+              {/* Coverage threshold */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  Goal: {Math.round(settings.coverageThreshold * 100)}%
+                </label>
+                <Slider
+                  value={[settings.coverageThreshold]}
+                  onValueChange={([v]) => updateSettings({ coverageThreshold: v })}
+                  min={0.5}
+                  max={1.0}
+                  step={0.05}
+                />
+              </div>
+
+              {/* Stroke color */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  Color
+                </label>
+                <div className="flex gap-2.5 flex-wrap">
+                  {STROKE_COLORS.map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => updateSettings({ strokeColor: color.value })}
+                      className={`hermes-color-swatch w-9 h-9 ${
+                        settings.strokeColor === color.value ? "selected" : ""
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Category tabs + letter grid */}
+              <div className="space-y-2">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  Jump to Letter
+                </label>
+                <div className="flex gap-1.5 mb-2">
+                  {(
+                    [
+                      ["uppercase", "A\u2013Z"],
+                      ["lowercase", "a\u2013z"],
+                      ["numbers", "0\u20139"],
+                    ] as const
+                  ).map(([cat, label]) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`hermes-tab flex-1 py-2 text-sm ${
+                        activeCategory === cat ? "active" : "inactive"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {categoryChars.map((char) => {
+                    const isCompleted = progress[char]?.completed;
+                    const isCurrent = char === currentChar;
+                    return (
+                      <button
+                        key={char}
+                        onClick={() => handleLetterSelect(char)}
+                        className={`hermes-letter-tile w-9 h-9 text-sm ${
+                          isCurrent
+                            ? "current"
+                            : isCompleted
+                              ? "completed"
+                              : "pending"
+                        }`}
+                      >
+                        {char}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       )}
-    </div>
+    </>
   );
 }

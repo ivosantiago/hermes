@@ -4,6 +4,8 @@ import { HydrationGate } from "@/components/hydration-gate";
 import { TracingCanvas } from "@/components/tracing-canvas";
 import { LetterDisplay } from "@/components/letter-display";
 import { ParentControls } from "@/components/parent-controls";
+import { ClearButton } from "@/components/clear-button";
+import { BackgroundShapes } from "@/components/background-shapes";
 import { CompletionScreen } from "@/components/completion-screen";
 import { useTracingStore } from "@/store/tracing-store";
 
@@ -15,18 +17,26 @@ function AppContent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-amber-50 px-4 py-4 gap-4 font-sans">
-      {/* Header */}
-      <div className="flex w-full max-w-2xl items-center justify-between">
+    <div className="hermes-sky fixed inset-0 flex items-center justify-center overflow-hidden">
+      <BackgroundShapes />
+
+      {/* Letter hero — top-left */}
+      <div className="fixed top-5 left-5" style={{ zIndex: 10 }}>
         <LetterDisplay />
-        <h1 className="text-lg font-semibold text-amber-700">Hermes</h1>
       </div>
 
-      {/* Canvas area */}
-      <TracingCanvas />
+      {/* Canvas (centered) — JourneyProgress is rendered inside TracingCanvas as fixed top-right */}
+      <div className="relative" style={{ zIndex: 5 }}>
+        <TracingCanvas />
+      </div>
 
-      {/* Parent controls */}
-      <ParentControls />
+      {/* Floating action buttons */}
+      <div className="fixed bottom-6 left-6" style={{ zIndex: 10 }}>
+        <ClearButton />
+      </div>
+      <div className="fixed bottom-6 right-6" style={{ zIndex: 10 }}>
+        <ParentControls />
+      </div>
     </div>
   );
 }

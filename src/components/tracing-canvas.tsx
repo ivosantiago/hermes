@@ -8,12 +8,11 @@ import { useHighDpiCanvas } from "@/hooks/use-high-dpi-canvas";
 import { renderGuideLetter } from "@/lib/pixel-mask";
 import { renderStroke, DEFAULT_STROKE_OPTIONS } from "@/lib/stroke-renderer";
 import { loadFont } from "@/lib/fonts";
-import { ProgressBar } from "@/components/progress-bar";
+import { JourneyProgress } from "@/components/journey-progress";
 import { Celebration } from "@/components/celebration";
 import { ALL_CHARS } from "@/types";
 
 const CANVAS_SIZE = 500;
-const COVERAGE_THRESHOLD = 0.9;
 
 export function TracingCanvas() {
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,6 +28,8 @@ export function TracingCanvas() {
   const advanceToNext = useTracingStore((s) => s.advanceToNext);
   const setCurrentChar = useTracingStore((s) => s.setCurrentChar);
 
+  const coverageThreshold = settings.coverageThreshold;
+
   const { setupCanvas } = useHighDpiCanvas();
   const { coverage, generateMask, checkCoverage, resetCoverage } = useCoverage({
     drawingCanvasRef,
@@ -40,13 +41,13 @@ export function TracingCanvas() {
 
   const isLastChar = currentChar === ALL_CHARS[ALL_CHARS.length - 1];
 
-  // Calculate responsive canvas size
+  // Calculate responsive canvas size — much larger now
   useEffect(() => {
     const updateSize = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      // Leave room for controls and progress bar
-      const maxSize = Math.min(vw - 32, vh - 280, 600);
+      // Much larger: vh - 80 since controls are a bottom sheet now
+      const maxSize = Math.min(vw - 32, vh - 80, 700);
       setCanvasSize(Math.max(300, maxSize));
     };
 
@@ -151,7 +152,7 @@ export function TracingCanvas() {
       // Check existing coverage if there are strokes
       if (progress[currentChar]?.strokes?.length) {
         const cov = checkCoverage();
-        if (cov >= COVERAGE_THRESHOLD) {
+        if (cov >= coverageThreshold) {
           setShowCelebration(true);
         }
       }
@@ -177,11 +178,11 @@ export function TracingCanvas() {
   // Handle stroke completion — check coverage
   const onStrokeEnd = useCallback(() => {
     const cov = checkCoverage();
-    if (cov >= COVERAGE_THRESHOLD && !showCelebration) {
+    if (cov >= coverageThreshold && !showCelebration) {
       markLetterCompleted();
       setShowCelebration(true);
     }
-  }, [checkCoverage, markLetterCompleted, showCelebration]);
+  }, [checkCoverage, coverageThreshold, markLetterCompleted, showCelebration]);
 
   const { handlePointerDown, handlePointerMove, handlePointerUp } = useDrawing({
     canvasRef: drawingCanvasRef,
@@ -191,7 +192,6 @@ export function TracingCanvas() {
   const handleNext = useCallback(() => {
     setShowCelebration(false);
     if (isLastChar) {
-      // Go to completion screen
       setCurrentChar("COMPLETED");
     } else {
       advanceToNext();
@@ -217,10 +217,16 @@ export function TracingCanvas() {
   }, [fontReady]);
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <>
+      {/* Star progress — fixed top-right */}
+      <div className="fixed top-5 right-5" style={{ zIndex: 10 }}>
+        <JourneyProgress coverage={coverage} threshold={coverageThreshold} />
+      </div>
+
+      {/* Canvas */}
       <div
         ref={containerRef}
-        className="relative rounded-2xl border-4 border-amber-200 bg-white shadow-lg overflow-hidden"
+        className="hermes-canvas-surface relative overflow-hidden"
         style={{ width: canvasSize, height: canvasSize }}
       >
         {/* Mask canvas — hidden, used for pixel comparison */}
@@ -246,16 +252,14 @@ export function TracingCanvas() {
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
         />
-
-        {/* Celebration overlay */}
-        <Celebration
-          show={showCelebration}
-          onNext={handleNext}
-          isLastChar={isLastChar}
-        />
       </div>
 
-      <ProgressBar coverage={coverage} threshold={COVERAGE_THRESHOLD} />
-    </div>
+      {/* Celebration — full viewport, rendered outside canvas container */}
+      <Celebration
+        show={showCelebration}
+        onNext={handleNext}
+        isLastChar={isLastChar}
+      />
+    </>
   );
 }

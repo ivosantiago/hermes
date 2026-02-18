@@ -109,6 +109,14 @@ export const useTracingStore = create<TracingStore>()(
       name: "hermes-tracing",
       version: 1,
       skipHydration: true,
+      merge: (persisted, current) => {
+        const p = persisted as Partial<PersistedState>;
+        return {
+          ...current,
+          ...p,
+          settings: { ...DEFAULT_SETTINGS, ...p?.settings },
+        };
+      },
     }
   )
 );

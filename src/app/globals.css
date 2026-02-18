@@ -7,7 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-nunito);
+  --font-display: var(--font-fredoka);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -80,6 +81,24 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Hermes custom palette */
+  --hermes-cream: #FFF8F0;
+  --hermes-peach: #FFE8D6;
+  --hermes-coral: #FF6B6B;
+  --hermes-coral-light: #FF8E8E;
+  --hermes-teal: #4ECDC4;
+  --hermes-teal-light: #7EDDD6;
+  --hermes-gold: #FFD93D;
+  --hermes-gold-light: #FFE66D;
+  --hermes-navy: #1a1a2e;
+  --hermes-navy-light: #2d2d4a;
+  --hermes-lavender: #E8E0F0;
+  --hermes-green: #6BCB77;
+  --hermes-green-light: #8FD89A;
+  --hermes-purple: #A78BFA;
+  --hermes-pink: #F472B6;
+  --hermes-orange: #FB923C;
 }
 
 .dark {
@@ -122,6 +141,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-nunito), system-ui, sans-serif;
   }
 }
 
@@ -131,16 +151,459 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent pull-to-refresh and overscroll on the whole page when drawing */
 html,
 body {
   overscroll-behavior: none;
 }
 
-/* Prevent callout / selection on canvas and buttons for kids */
 canvas,
 button {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* ---- Hermes custom styles ---- */
+
+.font-display {
+  font-family: var(--font-fredoka), system-ui, sans-serif;
+}
+
+/* ===== Sky background ===== */
+.hermes-sky {
+  background: linear-gradient(
+    160deg,
+    #FFF5EE 0%,
+    #FFF0E6 25%,
+    #F0E6FF 50%,
+    #E6F7FF 75%,
+    #FFF5EE 100%
+  );
+  background-size: 300% 300%;
+  animation: hermes-sky-shift 20s ease-in-out infinite;
+}
+
+@keyframes hermes-sky-shift {
+  0%, 100% { background-position: 0% 50%; }
+  33% { background-position: 50% 100%; }
+  66% { background-position: 100% 0%; }
+}
+
+/* ===== Decorative floating shapes ===== */
+.hermes-shape {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.12;
+  animation: hermes-drift 16s ease-in-out infinite;
+}
+
+.hermes-shape-star {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.hermes-shape-circle {
+  border-radius: 50%;
+}
+
+.hermes-shape-diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+@keyframes hermes-drift {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(5deg); }
+  66% { transform: translateY(8px) rotate(-3deg); }
+}
+
+/* ===== Canvas surface (paper texture) ===== */
+.hermes-canvas-surface {
+  background: #FFFCF8;
+  border-radius: 32px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.06),
+    inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.hermes-canvas-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* ===== Letter hero bubble ===== */
+.hermes-letter-hero {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--hermes-coral) 0%, var(--hermes-orange) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-fredoka), system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 600;
+  box-shadow:
+    0 4px 16px rgba(255, 107, 107, 0.35),
+    inset 0 2px 0 rgba(255, 255, 255, 0.25);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  animation: hermes-breathe 3s ease-in-out infinite;
+}
+
+@keyframes hermes-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* ===== Star trail progress ===== */
+.hermes-stars-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.hermes-star {
+  width: 18px;
+  height: 18px;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hermes-star-empty {
+  opacity: 0.25;
+  filter: grayscale(1);
+}
+
+.hermes-star-filled {
+  opacity: 1;
+  filter: grayscale(0);
+  animation: hermes-star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes hermes-star-pop {
+  0% { transform: scale(0.5); }
+  60% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.hermes-stars-complete {
+  animation: hermes-stars-shimmer 1s ease-in-out;
+}
+
+@keyframes hermes-stars-shimmer {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+  100% { filter: brightness(1); }
+}
+
+/* ===== Bottom sheet ===== */
+.hermes-bottom-sheet-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  animation: hermes-fade-in 0.2s ease-out;
+}
+
+@keyframes hermes-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hermes-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 70vh;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: none;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.1);
+  z-index: 51;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: hermes-slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes hermes-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.hermes-bottom-sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.15);
+  margin: 10px auto 0;
+}
+
+/* ===== Floating action buttons (settings gear + eraser) ===== */
+.hermes-fab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  color: var(--hermes-navy);
+}
+
+.hermes-fab:active {
+  transform: scale(0.9);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Full-viewport celebration ===== */
+.hermes-celebration-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(255, 248, 240, 0.94) 100%
+  );
+  backdrop-filter: blur(16px);
+}
+
+/* Expanding pulse rings */
+.hermes-pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid var(--hermes-coral);
+  opacity: 0;
+  animation: hermes-pulse-expand 2s ease-out infinite;
+}
+
+.hermes-pulse-ring:nth-child(2) {
+  animation-delay: 0.6s;
+  border-color: var(--hermes-teal);
+}
+
+.hermes-pulse-ring:nth-child(3) {
+  animation-delay: 1.2s;
+  border-color: var(--hermes-gold);
+}
+
+@keyframes hermes-pulse-expand {
+  0% {
+    width: 40px;
+    height: 40px;
+    opacity: 0.6;
+  }
+  100% {
+    width: 400px;
+    height: 400px;
+    opacity: 0;
+  }
+}
+
+/* ===== KEPT: Starburst ===== */
+.hermes-starburst {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--hermes-gold-light) 10deg,
+    transparent 20deg,
+    transparent 40deg,
+    var(--hermes-coral-light) 50deg,
+    transparent 60deg,
+    transparent 80deg,
+    var(--hermes-teal-light) 90deg,
+    transparent 100deg,
+    transparent 120deg,
+    var(--hermes-gold-light) 130deg,
+    transparent 140deg,
+    transparent 160deg,
+    var(--hermes-coral-light) 170deg,
+    transparent 180deg,
+    transparent 200deg,
+    var(--hermes-teal-light) 210deg,
+    transparent 220deg,
+    transparent 240deg,
+    var(--hermes-gold-light) 250deg,
+    transparent 260deg,
+    transparent 280deg,
+    var(--hermes-coral-light) 290deg,
+    transparent 300deg,
+    transparent 320deg,
+    var(--hermes-teal-light) 330deg,
+    transparent 340deg
+  );
+  opacity: 0.3;
+  border-radius: 50%;
+  animation: hermes-spin 12s linear infinite;
+}
+
+@keyframes hermes-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== KEPT: Spring bounce ===== */
+@keyframes hermes-bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.08); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.hermes-bounce-in {
+  animation: hermes-bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ===== KEPT: Wiggle ===== */
+@keyframes hermes-wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+.hermes-wiggle {
+  animation: hermes-wiggle 0.5s ease-in-out infinite;
+}
+
+/* ===== KEPT: Pulse glow ===== */
+@keyframes hermes-pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(78, 205, 196, 0.7); }
+}
+
+.hermes-pulse-glow {
+  animation: hermes-pulse-glow 2s ease-in-out infinite;
+}
+
+/* ===== KEPT: Glass panel ===== */
+.hermes-glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ===== KEPT: Color swatch ===== */
+.hermes-color-swatch {
+  border-radius: 50%;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.hermes-color-swatch:active {
+  transform: scale(0.9);
+}
+
+.hermes-color-swatch.selected {
+  transform: scale(1.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ===== KEPT: Letter tile ===== */
+.hermes-letter-tile {
+  border-radius: 12px;
+  font-family: var(--font-fredoka), system-ui, sans-serif;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.hermes-letter-tile:active {
+  transform: scale(0.92);
+}
+
+.hermes-letter-tile.current {
+  background: linear-gradient(135deg, var(--hermes-coral) 0%, var(--hermes-coral-light) 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.35);
+  transform: scale(1.1);
+}
+
+.hermes-letter-tile.completed {
+  background: linear-gradient(135deg, var(--hermes-green) 0%, var(--hermes-green-light) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(107, 203, 119, 0.3);
+}
+
+.hermes-letter-tile.pending {
+  background: white;
+  color: var(--hermes-navy-light);
+  border: 2px solid #e5e7eb;
+}
+
+/* ===== KEPT: Shimmer ===== */
+@keyframes hermes-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.hermes-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--hermes-peach) 25%,
+    var(--hermes-lavender) 50%,
+    var(--hermes-peach) 75%
+  );
+  background-size: 200% 100%;
+  animation: hermes-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ===== KEPT: Tab pill ===== */
+.hermes-tab {
+  border-radius: 999px;
+  font-family: var(--font-fredoka), system-ui, sans-serif;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.hermes-tab.active {
+  background: var(--hermes-navy);
+  color: white;
+  box-shadow: 0 2px 8px rgba(26, 26, 46, 0.25);
+}
+
+.hermes-tab.inactive {
+  background: white;
+  color: var(--hermes-navy-light);
+  border: 2px solid #e5e7eb;
+}
+
+/* ===== Loading bounce ===== */
+@keyframes hermes-loading-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+.hermes-loading-bounce {
+  animation: hermes-loading-bounce 1s ease-in-out infinite;
 }

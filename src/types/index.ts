@@ -21,6 +21,7 @@ export interface AppSettings {
   fontWeight: number;
   strokeColor: string;
   strokeSize: number;
+  coverageThreshold: number;
 }
 
 export interface PersistedState {
@@ -63,6 +64,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   fontWeight: 400,
   strokeColor: "#3b82f6",
   strokeSize: 20,
+  coverageThreshold: 0.9,
 };
 
 export const AVAILABLE_FONTS = [
