@@ -3,10 +3,12 @@
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
 import { useTracingStore } from "@/store/tracing-store";
+import { useTranslation } from "@/hooks/use-translation";
 import { BackgroundShapes } from "@/components/background-shapes";
 
 export function CompletionScreen() {
   const resetProgress = useTracingStore((s) => s.resetProgress);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const duration = 3000;
@@ -61,19 +63,19 @@ export function CompletionScreen() {
           className="hermes-bounce-in hermes-wiggle font-display text-5xl font-bold text-center"
           style={{ color: "var(--hermes-coral)", animationDelay: "0.2s" }}
         >
-          Amazing Work!
+          {t("completion.title")}
         </h1>
         <p
           className="hermes-bounce-in font-display text-2xl font-medium text-center"
           style={{ color: "var(--hermes-navy)", animationDelay: "0.35s" }}
         >
-          You traced every letter and number!
+          {t("completion.subtitle")}
         </p>
         <p
           className="hermes-bounce-in text-base text-center"
           style={{ color: "var(--hermes-navy-light)", opacity: 0.7, animationDelay: "0.45s" }}
         >
-          A&ndash;Z, a&ndash;z, and 0&ndash;9 &mdash; all 62 characters!
+          {t("completion.detail")}
         </p>
         <button
           onClick={resetProgress}
@@ -83,7 +85,7 @@ export function CompletionScreen() {
             animationDelay: "0.6s",
           }}
         >
-          Start Over
+          {t("completion.restart")}
         </button>
       </div>
     </div>

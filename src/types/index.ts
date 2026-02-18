@@ -15,6 +15,8 @@ export interface LetterProgress {
   strokes: Stroke[];
 }
 
+export type { Locale } from "@/lib/i18n";
+
 export interface AppSettings {
   fontFamily: string;
   fontSize: number;
@@ -22,6 +24,7 @@ export interface AppSettings {
   strokeColor: string;
   strokeSize: number;
   coverageThreshold: number;
+  locale: import("@/lib/i18n").Locale;
 }
 
 export interface PersistedState {
@@ -65,6 +68,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   strokeColor: "#3b82f6",
   strokeSize: 20,
   coverageThreshold: 0.9,
+  locale: "pt-BR",
 };
 
 export const AVAILABLE_FONTS = [

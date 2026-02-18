@@ -1,7 +1,7 @@
 {
-  "name": "Hermes — Calligraphy Tracing",
+  "name": "Hermes — Caligrafia",
   "short_name": "Hermes",
-  "description": "A calligraphy tracing app for kids",
+  "description": "App de caligrafia para crianças",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fffbeb",

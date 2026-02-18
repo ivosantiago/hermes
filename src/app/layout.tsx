@@ -15,9 +15,9 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Hermes — Calligraphy Tracing",
+  title: "Hermes — Caligrafia",
   description:
-    "A calligraphy tracing app for kids. Trace letters and numbers with finger or Apple Pencil.",
+    "App de caligrafia para crianças. Trace letras e números com o dedo ou Apple Pencil.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body
         className={`${fredoka.variable} ${nunito.variable} antialiased`}
       >

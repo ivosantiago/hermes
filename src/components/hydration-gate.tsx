@@ -1,9 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import { useHydration } from "@/hooks/use-hydration";
+import { useTracingStore } from "@/store/tracing-store";
 
 export function HydrationGate({ children }: { children: React.ReactNode }) {
   const hydrated = useHydration();
+  const locale = useTracingStore((s) => s.settings.locale);
+
+  useEffect(() => {
+    if (hydrated) {
+      document.documentElement.lang = locale;
+    }
+  }, [hydrated, locale]);
 
   if (!hydrated) {
     return (

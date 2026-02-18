@@ -1,15 +1,17 @@
 "use client";
 
 import { useTracingStore } from "@/store/tracing-store";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function ClearButton() {
   const clearCurrentStrokes = useTracingStore((s) => s.clearCurrentStrokes);
+  const { t } = useTranslation();
 
   return (
     <button
       onClick={clearCurrentStrokes}
       className="hermes-fab"
-      aria-label="Clear drawing"
+      aria-label={t("clear.ariaLabel")}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.8 1.4c.8-.8 2-.8 2.8 0l5 5c.8.8.8 2 0 2.8L11.4 20" />

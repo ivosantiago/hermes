@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface CelebrationProps {
   show: boolean;
@@ -11,6 +12,7 @@ interface CelebrationProps {
 
 export function Celebration({ show, onNext, isLastChar }: CelebrationProps) {
   const firedRef = useRef(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (show && !firedRef.current) {
@@ -80,7 +82,7 @@ export function Celebration({ show, onNext, isLastChar }: CelebrationProps) {
           className="hermes-bounce-in hermes-wiggle font-display text-5xl font-bold"
           style={{ color: "var(--hermes-coral)", animationDelay: "0.15s" }}
         >
-          Amazing!
+          {t("celebration.title")}
         </h2>
         <button
           onClick={onNext}
@@ -90,7 +92,7 @@ export function Celebration({ show, onNext, isLastChar }: CelebrationProps) {
             animationDelay: "0.3s",
           }}
         >
-          {isLastChar ? "Celebrate!" : "Next"}
+          {isLastChar ? t("celebration.finish") : t("celebration.next")}
         </button>
       </div>
     </div>

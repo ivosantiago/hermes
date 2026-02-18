@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/hooks/use-translation";
+
 interface ProgressBarProps {
   coverage: number;
   threshold?: number;
@@ -8,6 +10,7 @@ interface ProgressBarProps {
 export function ProgressBar({ coverage, threshold = 0.9 }: ProgressBarProps) {
   const percent = Math.min(Math.round(coverage * 100), 100);
   const isComplete = coverage >= threshold;
+  const { t } = useTranslation();
 
   const gradient = isComplete
     ? "linear-gradient(90deg, var(--hermes-green) 0%, var(--hermes-teal) 100%)"
@@ -22,7 +25,7 @@ export function ProgressBar({ coverage, threshold = 0.9 }: ProgressBarProps) {
           className="font-display text-xs font-medium"
           style={{ color: "var(--hermes-navy-light)" }}
         >
-          Coverage
+          {t("progress.coverage")}
         </span>
         <span
           className="font-display text-sm font-semibold"

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useTracingStore } from "@/store/tracing-store";
+import { useTranslation } from "@/hooks/use-translation";
 import { Slider } from "@/components/ui/slider";
 import {
   Select,
@@ -17,15 +18,16 @@ import {
   NUMBERS,
   type CharCategory,
 } from "@/types";
+import type { TranslationKey } from "@/lib/i18n";
 
-const STROKE_COLORS = [
-  { name: "Coral", value: "#FF6B6B" },
-  { name: "Blue", value: "#3b82f6" },
-  { name: "Teal", value: "#4ECDC4" },
-  { name: "Purple", value: "#A78BFA" },
-  { name: "Orange", value: "#FB923C" },
-  { name: "Pink", value: "#F472B6" },
-  { name: "Navy", value: "#1a1a2e" },
+const STROKE_COLORS: { nameKey: TranslationKey; value: string }[] = [
+  { nameKey: "color.coral", value: "#FF6B6B" },
+  { nameKey: "color.blue", value: "#3b82f6" },
+  { nameKey: "color.teal", value: "#4ECDC4" },
+  { nameKey: "color.purple", value: "#A78BFA" },
+  { nameKey: "color.orange", value: "#FB923C" },
+  { nameKey: "color.pink", value: "#F472B6" },
+  { nameKey: "color.navy", value: "#1a1a2e" },
 ];
 
 export function ParentControls() {
@@ -35,6 +37,7 @@ export function ParentControls() {
   const setCurrentChar = useTracingStore((s) => s.setCurrentChar);
   const currentChar = useTracingStore((s) => s.currentChar);
   const progress = useTracingStore((s) => s.progress);
+  const { t } = useTranslation();
 
   const [activeCategory, setActiveCategory] = useState<CharCategory>(() => {
     if (currentChar >= "A" && currentChar <= "Z") return "uppercase";
@@ -63,7 +66,7 @@ export function ParentControls() {
       <button
         onClick={() => setIsOpen(true)}
         className="hermes-fab"
-        aria-label="Settings"
+        aria-label={t("settings.ariaLabel")}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
@@ -86,10 +89,35 @@ export function ParentControls() {
             <div className="hermes-bottom-sheet-handle" />
 
             <div className="p-5 space-y-5">
+              {/* Language switcher */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
+                  {t("settings.language")}
+                </label>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => updateSettings({ locale: "pt-BR" })}
+                    className={`hermes-tab flex-1 py-2 text-sm ${
+                      settings.locale === "pt-BR" ? "active" : "inactive"
+                    }`}
+                  >
+                    Português
+                  </button>
+                  <button
+                    onClick={() => updateSettings({ locale: "en" })}
+                    className={`hermes-tab flex-1 py-2 text-sm ${
+                      settings.locale === "en" ? "active" : "inactive"
+                    }`}
+                  >
+                    English
+                  </button>
+                </div>
+              </div>
+
               {/* Font picker */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  Font
+                  {t("settings.font")}
                 </label>
                 <Select
                   value={settings.fontFamily}
@@ -111,7 +139,7 @@ export function ParentControls() {
               {/* Font size */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  Size: {settings.fontSize}px
+                  {t("settings.size", { value: settings.fontSize })}
                 </label>
                 <Slider
                   value={[settings.fontSize]}
@@ -125,7 +153,7 @@ export function ParentControls() {
               {/* Font weight */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  Weight: {settings.fontWeight}
+                  {t("settings.weight", { value: settings.fontWeight })}
                 </label>
                 <Slider
                   value={[settings.fontWeight]}
@@ -139,7 +167,7 @@ export function ParentControls() {
               {/* Stroke size */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  Brush: {settings.strokeSize}
+                  {t("settings.brush", { value: settings.strokeSize })}
                 </label>
                 <Slider
                   value={[settings.strokeSize]}
@@ -153,7 +181,7 @@ export function ParentControls() {
               {/* Coverage threshold */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  Goal: {Math.round(settings.coverageThreshold * 100)}%
+                  {t("settings.goal", { value: Math.round(settings.coverageThreshold * 100) })}
                 </label>
                 <Slider
                   value={[settings.coverageThreshold]}
@@ -167,7 +195,7 @@ export function ParentControls() {
               {/* Stroke color */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  Color
+                  {t("settings.color")}
                 </label>
                 <div className="flex gap-2.5 flex-wrap">
                   {STROKE_COLORS.map((color) => (
@@ -178,7 +206,7 @@ export function ParentControls() {
                         settings.strokeColor === color.value ? "selected" : ""
                       }`}
                       style={{ backgroundColor: color.value }}
-                      title={color.name}
+                      title={t(color.nameKey)}
                     />
                   ))}
                 </div>
@@ -187,7 +215,7 @@ export function ParentControls() {
               {/* Category tabs + letter grid */}
               <div className="space-y-2">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  Jump to Letter
+                  {t("settings.jumpToLetter")}
                 </label>
                 <div className="flex gap-1.5 mb-2">
                   {(
