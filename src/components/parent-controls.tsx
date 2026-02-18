@@ -4,15 +4,8 @@ import { useState, useCallback } from "react";
 import { useTracingStore } from "@/store/tracing-store";
 import { useTranslation } from "@/hooks/use-translation";
 import { Slider } from "@/components/ui/slider";
+import { FontPicker } from "@/components/font-picker";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AVAILABLE_FONTS,
   UPPERCASE,
   LOWERCASE,
   NUMBERS,
@@ -94,21 +87,10 @@ export function ParentControls() {
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
                   {t("settings.font")}
                 </label>
-                <Select
+                <FontPicker
                   value={settings.fontFamily}
-                  onValueChange={(v) => updateSettings({ fontFamily: v })}
-                >
-                  <SelectTrigger className="w-full rounded-xl">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AVAILABLE_FONTS.map((font) => (
-                      <SelectItem key={font.value} value={font.value}>
-                        {font.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(v) => updateSettings({ fontFamily: v })}
+                />
               </div>
 
               {/* Font size */}

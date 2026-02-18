@@ -1,4 +1,4 @@
-import { AVAILABLE_FONTS } from "@/types";
+import { CURATED_FONTS } from "@/types";
 
 const loadedFonts = new Set<string>();
 
@@ -30,8 +30,12 @@ export async function loadFont(
 }
 
 export async function preloadAllFonts(): Promise<void> {
-  const promises = AVAILABLE_FONTS.map((f) => loadFont(f.value, 400));
+  const promises = CURATED_FONTS.map((f) => loadFont(f.value, 400));
   await Promise.allSettled(promises);
+}
+
+export function isFontLoaded(family: string, weight: number = 400): boolean {
+  return loadedFonts.has(`${family}:${weight}`);
 }
 
 export function getFontString(
