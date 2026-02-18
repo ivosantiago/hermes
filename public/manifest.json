@@ -1,0 +1,22 @@
+{
+  "name": "Hermes — Calligraphy Tracing",
+  "short_name": "Hermes",
+  "description": "A calligraphy tracing app for kids",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbeb",
+  "theme_color": "#d97706",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
