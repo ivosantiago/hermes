@@ -89,31 +89,6 @@ export function ParentControls() {
             <div className="hermes-bottom-sheet-handle" />
 
             <div className="p-5 space-y-5">
-              {/* Language switcher */}
-              <div className="space-y-1.5">
-                <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  {t("settings.language")}
-                </label>
-                <div className="flex gap-1.5">
-                  <button
-                    onClick={() => updateSettings({ locale: "pt-BR" })}
-                    className={`hermes-tab flex-1 py-2 text-sm ${
-                      settings.locale === "pt-BR" ? "active" : "inactive"
-                    }`}
-                  >
-                    Português
-                  </button>
-                  <button
-                    onClick={() => updateSettings({ locale: "en" })}
-                    className={`hermes-tab flex-1 py-2 text-sm ${
-                      settings.locale === "en" ? "active" : "inactive"
-                    }`}
-                  >
-                    English
-                  </button>
-                </div>
-              </div>
-
               {/* Font picker */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
@@ -257,6 +232,28 @@ export function ParentControls() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Language — subtle flag toggle at bottom */}
+              <div className="flex items-center justify-end gap-1 pt-2">
+                <button
+                  onClick={() => updateSettings({ locale: "pt-BR" })}
+                  className={`text-lg leading-none rounded-full p-1 transition-opacity ${
+                    settings.locale === "pt-BR" ? "opacity-100" : "opacity-30"
+                  }`}
+                  aria-label="Português"
+                >
+                  &#127463;&#127479;
+                </button>
+                <button
+                  onClick={() => updateSettings({ locale: "en" })}
+                  className={`text-lg leading-none rounded-full p-1 transition-opacity ${
+                    settings.locale === "en" ? "opacity-100" : "opacity-30"
+                  }`}
+                  aria-label="English"
+                >
+                  &#127482;&#127480;
+                </button>
               </div>
             </div>
           </div>
