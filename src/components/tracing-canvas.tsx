@@ -138,6 +138,10 @@ export function TracingCanvas() {
     }
   }, [currentChar, progress]);
 
+  // Track stroke count to detect clears
+  const currentStrokes = progress[currentChar]?.strokes;
+  const strokeCount = currentStrokes?.length ?? 0;
+
   // Re-render when letter or settings change
   useEffect(() => {
     setShowCelebration(false);
@@ -153,6 +157,22 @@ export function TracingCanvas() {
       }
     });
   }, [currentChar, settings.fontFamily, settings.fontSize, settings.fontWeight, canvasSize]);
+
+  // React to clear: when strokes drop to 0, wipe the drawing canvas and reset coverage
+  useEffect(() => {
+    if (strokeCount === 0) {
+      const canvas = drawingCanvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          const dpr = window.devicePixelRatio || 1;
+          ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+        }
+      }
+      resetCoverage();
+      setShowCelebration(false);
+    }
+  }, [strokeCount, resetCoverage]);
 
   // Handle stroke completion — check coverage
   const onStrokeEnd = useCallback(() => {
