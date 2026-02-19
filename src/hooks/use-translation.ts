@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useTracingStore } from "@/store/tracing-store";
-import { t as translate, type TranslationKey, type Locale } from "@/lib/i18n";
+import { t as translate, type TranslationKey } from "@/lib/i18n";
 
 export function useTranslation() {
   const locale = useTracingStore((s) => s.settings.locale);

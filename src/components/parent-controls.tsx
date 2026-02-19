@@ -10,8 +10,15 @@ import {
   LOWERCASE,
   NUMBERS,
   type CharCategory,
+  type DifficultyLevel,
 } from "@/types";
 import type { TranslationKey } from "@/lib/i18n";
+
+const DIFFICULTY_LEVELS: { key: DifficultyLevel; labelKey: TranslationKey }[] = [
+  { key: "beginner", labelKey: "settings.difficulty.beginner" },
+  { key: "intermediate", labelKey: "settings.difficulty.intermediate" },
+  { key: "advanced", labelKey: "settings.difficulty.advanced" },
+];
 
 const STROKE_COLORS: { nameKey: TranslationKey; value: string }[] = [
   { nameKey: "color.coral", value: "#FF6B6B" },
@@ -27,6 +34,7 @@ export function ParentControls() {
   const [isOpen, setIsOpen] = useState(false);
   const settings = useTracingStore((s) => s.settings);
   const updateSettings = useTracingStore((s) => s.updateSettings);
+  const setDifficulty = useTracingStore((s) => s.setDifficulty);
   const setCurrentChar = useTracingStore((s) => s.setCurrentChar);
   const currentChar = useTracingStore((s) => s.currentChar);
   const progress = useTracingStore((s) => s.progress);
@@ -135,18 +143,24 @@ export function ParentControls() {
                 />
               </div>
 
-              {/* Coverage threshold */}
+              {/* Difficulty */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--hermes-navy-light)", opacity: 0.6 }}>
-                  {t("settings.goal", { value: Math.round(settings.coverageThreshold * 100) })}
+                  {t("settings.difficulty")}
                 </label>
-                <Slider
-                  value={[settings.coverageThreshold]}
-                  onValueChange={([v]) => updateSettings({ coverageThreshold: v })}
-                  min={0.5}
-                  max={1.0}
-                  step={0.05}
-                />
+                <div className="flex gap-1.5">
+                  {DIFFICULTY_LEVELS.map(({ key, labelKey }) => (
+                    <button
+                      key={key}
+                      onClick={() => setDifficulty(key)}
+                      className={`hermes-tab flex-1 py-2 text-sm ${
+                        settings.difficulty === key ? "active" : "inactive"
+                      }`}
+                    >
+                      {t(labelKey)}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Stroke color */}

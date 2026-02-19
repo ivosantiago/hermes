@@ -46,13 +46,15 @@ export function generateLetterMask(
 
 /**
  * Render the guide letter (faded) on the guide canvas.
+ * Pass opacity 0 to skip rendering (Advanced mode uses ruled lines instead).
  */
 export function renderGuideLetter(
   canvas: HTMLCanvasElement,
   char: string,
   fontFamily: string,
   fontSize: number,
-  fontWeight: number
+  fontWeight: number,
+  opacity: number = 0.15
 ): void {
   const ctx = canvas.getContext("2d")!;
   const width = canvas.width;
@@ -60,11 +62,72 @@ export function renderGuideLetter(
 
   ctx.clearRect(0, 0, width, height);
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+  if (opacity <= 0) return;
+
+  ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
   ctx.font = getFontString(fontFamily, fontWeight, fontSize * (window.devicePixelRatio || 1));
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(char, width / 2, height / 2);
+}
+
+/**
+ * Render ruled lines (baseline, midline, cap-height) for Advanced mode.
+ * Uses font metrics to position lines relative to the center.
+ */
+export function renderRuledLines(
+  canvas: HTMLCanvasElement,
+  fontFamily: string,
+  fontSize: number,
+  fontWeight: number
+): void {
+  const ctx = canvas.getContext("2d")!;
+  const width = canvas.width;
+  const height = canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+
+  // Measure font metrics using the same font string as guide/mask
+  ctx.font = getFontString(fontFamily, fontWeight, fontSize * dpr);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const metrics = ctx.measureText("H");
+
+  const centerY = height / 2;
+  const ascent = metrics.actualBoundingBoxAscent;
+  const descent = metrics.actualBoundingBoxDescent;
+
+  const baseline = centerY + descent;
+  const capHeight = centerY - ascent;
+  const midline = (baseline + capHeight) / 2;
+
+  // Baseline — solid
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.10)";
+  ctx.lineWidth = 2 * dpr;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(0, baseline);
+  ctx.lineTo(width, baseline);
+  ctx.stroke();
+
+  // Cap-height — dashed
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+  ctx.lineWidth = 1.5 * dpr;
+  ctx.setLineDash([8 * dpr, 6 * dpr]);
+  ctx.beginPath();
+  ctx.moveTo(0, capHeight);
+  ctx.lineTo(width, capHeight);
+  ctx.stroke();
+
+  // Midline — dashed
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+  ctx.lineWidth = 1.5 * dpr;
+  ctx.setLineDash([8 * dpr, 6 * dpr]);
+  ctx.beginPath();
+  ctx.moveTo(0, midline);
+  ctx.lineTo(width, midline);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
 }
 
 /**

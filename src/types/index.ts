@@ -10,9 +10,65 @@ export interface Stroke {
 
 export type CharCategory = "uppercase" | "lowercase" | "numbers";
 
+export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
+
+export interface DifficultyConfig {
+  rounds: number;
+  thresholds: number[];
+  guideOpacities: number[];
+  defaultStrokeSize: number;
+  showRuledLines: boolean;
+}
+
+export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
+  beginner: {
+    rounds: 3,
+    thresholds: [0.55, 0.65, 0.75],
+    guideOpacities: [0.15, 0.09, 0.045],
+    defaultStrokeSize: 24,
+    showRuledLines: false,
+  },
+  intermediate: {
+    rounds: 2,
+    thresholds: [0.70, 0.85],
+    guideOpacities: [0.12, 0.06],
+    defaultStrokeSize: 20,
+    showRuledLines: false,
+  },
+  advanced: {
+    rounds: 1,
+    thresholds: [0.90],
+    guideOpacities: [0],
+    defaultStrokeSize: 20,
+    showRuledLines: true,
+  },
+};
+
+export interface RoundConfig {
+  threshold: number;
+  guideOpacity: number;
+  isLastRound: boolean;
+  totalRounds: number;
+  showRuledLines: boolean;
+}
+
+export function getRoundConfig(difficulty: DifficultyLevel, round: number): RoundConfig {
+  const config = DIFFICULTY_CONFIGS[difficulty];
+  const clampedRound = Math.min(round, config.rounds - 1);
+  return {
+    threshold: config.thresholds[clampedRound],
+    guideOpacity: config.guideOpacities[clampedRound],
+    isLastRound: clampedRound === config.rounds - 1,
+    totalRounds: config.rounds,
+    showRuledLines: config.showRuledLines,
+  };
+}
+
 export interface LetterProgress {
   completed: boolean;
   strokes: Stroke[];
+  currentRound: number;
+  completedRounds: number;
 }
 
 export type { Locale } from "@/lib/i18n";
@@ -23,7 +79,7 @@ export interface AppSettings {
   fontWeight: number;
   strokeColor: string;
   strokeSize: number;
-  coverageThreshold: number;
+  difficulty: DifficultyLevel;
   locale: import("@/lib/i18n").Locale;
 }
 
@@ -66,8 +122,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   fontSize: 300,
   fontWeight: 400,
   strokeColor: "#3b82f6",
-  strokeSize: 20,
-  coverageThreshold: 0.9,
+  strokeSize: 24,
+  difficulty: "beginner",
   locale: "pt-BR",
 };
 
