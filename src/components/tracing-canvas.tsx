@@ -14,6 +14,40 @@ import { ALL_CHARS, getRoundConfig } from "@/types";
 
 const CANVAS_SIZE = 500;
 
+/** Renders CSS-based ruled lines for the side-by-side reference letter */
+function ReferenceRuledLines({
+  canvasSize,
+}: {
+  canvasSize: number;
+  fontFamily: string;
+  fontSize: number;
+  fontWeight: number;
+}) {
+  // Approximate line positions: baseline at ~60% from top, midline at center, cap-height at ~25%
+  const baseline = canvasSize * 0.62;
+  const capHeight = canvasSize * 0.25;
+  const midline = (baseline + capHeight) / 2;
+
+  const lineStyle = (top: number, dashed: boolean): React.CSSProperties => ({
+    position: "absolute",
+    top,
+    left: 0,
+    right: 0,
+    height: 0,
+    borderBottom: dashed
+      ? "1.5px dashed rgba(0,0,0,0.08)"
+      : "2px solid rgba(0,0,0,0.10)",
+  });
+
+  return (
+    <>
+      <div style={lineStyle(capHeight, true)} />
+      <div style={lineStyle(midline, true)} />
+      <div style={lineStyle(baseline, false)} />
+    </>
+  );
+}
+
 interface CelebrationEvent {
   type: "round" | "letter";
   stateKey: string;
@@ -69,19 +103,23 @@ export function TracingCanvas() {
       ? celebrationEvent.type
       : null;
 
+  const showSideReference = roundConfig.showSideReference;
+
   // Calculate responsive canvas size
   useEffect(() => {
     const updateSize = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const maxSize = Math.min(vw - 32, vh - 80, 700);
-      setCanvasSize(Math.max(300, maxSize));
+      // When side-by-side, the canvas shares horizontal space with the reference letter
+      const horizontalBudget = showSideReference ? (vw - 48) / 2 : vw - 32;
+      const maxSize = Math.min(horizontalBudget, vh - 80, 700);
+      setCanvasSize(Math.max(250, maxSize));
     };
 
     updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
-  }, []);
+  }, [showSideReference]);
 
   // Initialize canvases
   const initCanvases = useCallback(() => {
@@ -253,6 +291,38 @@ export function TracingCanvas() {
     };
   }, []);
 
+  const canvasStack = (
+    <div
+      ref={containerRef}
+      className="hermes-canvas-surface relative overflow-hidden"
+      style={{ width: canvasSize, height: canvasSize }}
+    >
+      {/* Mask canvas — hidden, used for pixel comparison */}
+      <canvas
+        ref={maskCanvasRef}
+        className="absolute inset-0 invisible"
+      />
+
+      {/* Guide canvas — faded letter */}
+      <canvas
+        ref={guideCanvasRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{ zIndex: 20 }}
+      />
+
+      {/* Drawing canvas — user strokes */}
+      <canvas
+        ref={drawingCanvasRef}
+        className="absolute inset-0 cursor-crosshair"
+        style={{ zIndex: 30, touchAction: "none" }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+      />
+    </div>
+  );
+
   return (
     <>
       {/* Star progress — fixed top-right */}
@@ -260,36 +330,37 @@ export function TracingCanvas() {
         <JourneyProgress coverage={coverage} threshold={coverageThreshold} />
       </div>
 
-      {/* Canvas */}
-      <div
-        ref={containerRef}
-        className="hermes-canvas-surface relative overflow-hidden"
-        style={{ width: canvasSize, height: canvasSize }}
-      >
-        {/* Mask canvas — hidden, used for pixel comparison */}
-        <canvas
-          ref={maskCanvasRef}
-          className="absolute inset-0 invisible"
-        />
+      {showSideReference ? (
+        <div className="flex items-center gap-4">
+          {/* Reference letter — clear model to copy from */}
+          <div
+            className="hermes-canvas-surface relative flex items-center justify-center overflow-hidden select-none"
+            style={{
+              width: canvasSize,
+              height: canvasSize,
+              fontFamily: `"${settings.fontFamily}"`,
+              fontWeight: settings.fontWeight,
+              fontSize: `${settings.fontSize * 0.55}px`,
+              color: "rgba(0, 0, 0, 0.7)",
+              lineHeight: 1,
+            }}
+          >
+            {/* Ruled lines on the reference side */}
+            <ReferenceRuledLines
+              canvasSize={canvasSize}
+              fontFamily={settings.fontFamily}
+              fontSize={settings.fontSize}
+              fontWeight={settings.fontWeight}
+            />
+            <span className="relative z-10">{currentChar}</span>
+          </div>
 
-        {/* Guide canvas — faded letter */}
-        <canvas
-          ref={guideCanvasRef}
-          className="absolute inset-0 pointer-events-none"
-          style={{ zIndex: 20 }}
-        />
-
-        {/* Drawing canvas — user strokes */}
-        <canvas
-          ref={drawingCanvasRef}
-          className="absolute inset-0 cursor-crosshair"
-          style={{ zIndex: 30, touchAction: "none" }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-        />
-      </div>
+          {/* Drawing canvas */}
+          {canvasStack}
+        </div>
+      ) : (
+        canvasStack
+      )}
 
       {/* Celebration — full viewport, rendered outside canvas container */}
       <Celebration

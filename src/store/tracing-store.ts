@@ -8,6 +8,7 @@ import type {
   DifficultyLevel,
   Locale,
 } from "@/types";
+import { getMinStrokeSize } from "@/types";
 import { DEFAULT_SETTINGS, ALL_CHARS, DIFFICULTY_CONFIGS } from "@/types";
 
 const DEFAULT_PROGRESS: LetterProgress = {
@@ -172,7 +173,13 @@ export const useTracingStore = create<TracingStore>()(
 
       updateSettings: (partial: Partial<AppSettings>) => {
         const { settings } = get();
-        set({ settings: { ...settings, ...partial } });
+        const merged = { ...settings, ...partial };
+        // Ensure stroke size is never smaller than the font's stroke width
+        const minStroke = getMinStrokeSize(merged.fontSize);
+        if (merged.strokeSize < minStroke) {
+          merged.strokeSize = minStroke;
+        }
+        set({ settings: merged });
       },
 
       setDifficulty: (level: DifficultyLevel) => {
@@ -187,11 +194,12 @@ export const useTracingStore = create<TracingStore>()(
           }
         }
 
+        const minStroke = getMinStrokeSize(settings.fontSize);
         set({
           settings: {
             ...settings,
             difficulty: level,
-            strokeSize: config.defaultStrokeSize,
+            strokeSize: Math.max(config.defaultStrokeSize, minStroke),
           },
           progress: newProgress,
         });

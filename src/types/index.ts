@@ -18,6 +18,7 @@ export interface DifficultyConfig {
   guideOpacities: number[];
   defaultStrokeSize: number;
   showRuledLines: boolean;
+  showSideReference: boolean;
 }
 
 export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
@@ -26,21 +27,24 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     thresholds: [0.55, 0.65, 0.75],
     guideOpacities: [0.15, 0.09, 0.045],
     defaultStrokeSize: 24,
-    showRuledLines: false,
+    showRuledLines: true,
+    showSideReference: true,
   },
   intermediate: {
     rounds: 2,
     thresholds: [0.70, 0.85],
     guideOpacities: [0.12, 0.06],
     defaultStrokeSize: 20,
-    showRuledLines: false,
+    showRuledLines: true,
+    showSideReference: false,
   },
   advanced: {
     rounds: 1,
     thresholds: [0.90],
-    guideOpacities: [0],
+    guideOpacities: [0.08],
     defaultStrokeSize: 20,
-    showRuledLines: true,
+    showRuledLines: false,
+    showSideReference: false,
   },
 };
 
@@ -50,6 +54,7 @@ export interface RoundConfig {
   isLastRound: boolean;
   totalRounds: number;
   showRuledLines: boolean;
+  showSideReference: boolean;
 }
 
 export function getRoundConfig(difficulty: DifficultyLevel, round: number): RoundConfig {
@@ -61,6 +66,7 @@ export function getRoundConfig(difficulty: DifficultyLevel, round: number): Roun
     isLastRound: clampedRound === config.rounds - 1,
     totalRounds: config.rounds,
     showRuledLines: config.showRuledLines,
+    showSideReference: config.showSideReference,
   };
 }
 
@@ -126,6 +132,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   difficulty: "beginner",
   locale: "pt-BR",
 };
+
+/** Minimum stroke size so the pen is never thinner than the font's strokes */
+export function getMinStrokeSize(fontSize: number): number {
+  return Math.round(fontSize * 0.07);
+}
 
 export type FontCategory = "handwriting" | "sans-serif" | "serif" | "display";
 

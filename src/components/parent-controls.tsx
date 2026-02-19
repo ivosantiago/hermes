@@ -9,6 +9,7 @@ import {
   UPPERCASE,
   LOWERCASE,
   NUMBERS,
+  getMinStrokeSize,
   type CharCategory,
   type DifficultyLevel,
 } from "@/types";
@@ -137,8 +138,8 @@ export function ParentControls() {
                 <Slider
                   value={[settings.strokeSize]}
                   onValueChange={([v]) => updateSettings({ strokeSize: v })}
-                  min={8}
-                  max={40}
+                  min={getMinStrokeSize(settings.fontSize)}
+                  max={60}
                   step={2}
                 />
               </div>
