@@ -59,6 +59,7 @@ export function TracingCanvas() {
   const maskCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState(CANVAS_SIZE);
+  const [fitsSideBySide, setFitsSideBySide] = useState(false);
 
   const currentChar = useTracingStore((s) => s.currentChar);
   const settings = useTracingStore((s) => s.settings);
@@ -105,13 +106,15 @@ export function TracingCanvas() {
 
   const showSideReference = roundConfig.showSideReference;
 
-  // Calculate responsive canvas size
+  // Calculate responsive canvas size + check if side-by-side fits
   useEffect(() => {
     const updateSize = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      // When side-by-side, the canvas shares horizontal space with the reference letter
-      const horizontalBudget = showSideReference ? (vw - 48) / 2 : vw - 32;
+      // Two 250px canvases + gap + padding need at least ~550px
+      const canFit = showSideReference && (vw - 48) / 2 >= 250;
+      setFitsSideBySide(canFit);
+      const horizontalBudget = canFit ? (vw - 48) / 2 : vw - 32;
       const maxSize = Math.min(horizontalBudget, vh - 80, 700);
       setCanvasSize(Math.max(250, maxSize));
     };
@@ -330,7 +333,7 @@ export function TracingCanvas() {
         <JourneyProgress coverage={coverage} threshold={coverageThreshold} />
       </div>
 
-      {showSideReference ? (
+      {fitsSideBySide ? (
         <div className="flex items-center gap-4">
           {/* Reference letter — clear model to copy from */}
           <div
